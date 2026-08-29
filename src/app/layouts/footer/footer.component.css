@@ -1,0 +1,11 @@
+.app-footer {
+  margin-top: auto;
+}
+
+.text-xs {
+  font-size: 0.8rem;
+}
+
+.hover-primary:hover {
+  color: var(--bs-primary) !important;
+}

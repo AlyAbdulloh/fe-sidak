@@ -1,0 +1,67 @@
+<aside [class.collapsed]="isCollapsed" class="app-sidebar bg-body border-end d-flex flex-column transition-all">
+  <!-- Sidebar Header: Brand Logo & Title -->
+  <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3 border-bottom">
+    <a routerLink="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none color-inherit overflow-hidden">
+      <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
+        <i class="bi bi-person-badge-fill fs-4"></i>
+      </div>
+      @if (!isCollapsed) {
+        <div class="brand-text text-truncate">
+          <div class="fw-bold fs-6 text-primary lh-1">SIDAK</div>
+          <small class="text-muted text-xs">Info Data Karyawan</small>
+        </div>
+      }
+    </a>
+  </div>
+
+  <!-- Sidebar Body: Menu Items -->
+  <div class="sidebar-body flex-grow-1 overflow-auto py-3 px-2">
+    @for (section of navSections; track $index) {
+      @if (section.title && !isCollapsed) {
+        <div class="nav-section-title px-3 pt-3 pb-1 text-uppercase text-muted fw-bold text-xs">
+          {{ section.title }}
+        </div>
+      } @else if (section.title && isCollapsed) {
+        <div class="text-center py-2 text-muted text-xs opacity-50">•</div>
+      }
+
+      <ul class="nav nav-pills flex-column gap-1">
+        @for (item of section.items; track item.route) {
+          <li class="nav-item">
+            <a 
+              [routerLink]="item.route" 
+              routerLinkActive="active" 
+              (click)="closeMobileSidebar()"
+              class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-secondary text-sm fw-medium"
+              [title]="isCollapsed ? item.label : ''">
+              <i class="bi {{ item.icon }} fs-5 flex-shrink-0"></i>
+              @if (!isCollapsed) {
+                <span class="flex-grow-1 text-truncate">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="badge {{ item.badgeClass || 'bg-primary' }} rounded-pill text-xs px-2">{{ item.badge }}</span>
+                }
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <!-- Sidebar Footer: Compact User Badge / Quick Actions -->
+  <div class="sidebar-footer p-3 border-top bg-body-tertiary">
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar-circle bg-secondary-subtle text-secondary fw-bold rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+        <i class="bi bi-shield-lock-fill text-primary"></i>
+      </div>
+      @if (!isCollapsed) {
+        <div class="overflow-hidden flex-grow-1">
+          <div class="fw-semibold text-truncate text-xs">Ver. 1.0.0 (Nest + Ang)</div>
+          <div class="text-success text-xs d-flex align-items-center gap-1">
+            <span class="indicator-dot bg-success rounded-circle"></span> Online
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</aside>

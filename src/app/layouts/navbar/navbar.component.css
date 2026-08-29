@@ -1,0 +1,59 @@
+.app-navbar {
+  height: 64px;
+  z-index: 1020;
+  backdrop-filter: blur(8px);
+  background-color: rgba(var(--bs-body-bg-rgb), 0.9) !important;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  color: var(--bs-primary);
+  transform: translateY(-1px);
+}
+
+.avatar-circle {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+}
+
+.search-box input {
+  width: 280px;
+  transition: width 0.3s ease;
+}
+
+.search-box input:focus {
+  width: 340px;
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.15);
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.fs-7 {
+  font-size: 0.825rem;
+}
+
+.max-w-120 {
+  max-width: 120px;
+}
+
+.width-dropdown-notifications {
+  width: 300px;
+}

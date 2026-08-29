@@ -1,0 +1,13 @@
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}

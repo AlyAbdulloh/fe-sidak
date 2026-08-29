@@ -1,0 +1,114 @@
+<header class="navbar navbar-expand bg-body border-bottom px-3 sticky-top app-navbar">
+  <!-- Left section: Sidebar toggle & Title/Search -->
+  <div class="d-flex align-items-center gap-3">
+    <button 
+      type="button" 
+      class="btn btn-icon btn-light rounded-circle shadow-sm"
+      (click)="toggleSidebar()"
+      title="Toggle Navigation Menu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <div class="d-none d-md-flex align-items-center position-relative search-box">
+      <i class="bi bi-search position-absolute start-0 ps-3 text-muted"></i>
+      <input 
+        type="search" 
+        class="form-control ps-5 pe-3 rounded-pill bg-body-tertiary border-0 text-sm" 
+        placeholder="Cari karyawan, divisi, atau laporan... (Ctrl+K)">
+    </div>
+  </div>
+
+  <!-- Right section: Quick Actions, Theme Toggle, Profile Dropdown -->
+  <div class="d-flex align-items-center gap-2 ms-auto">
+    <!-- Dark/Light Theme Switcher -->
+    <button 
+      type="button" 
+      class="btn btn-icon btn-light rounded-circle shadow-sm" 
+      (click)="toggleDarkMode()"
+      [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      @if (themeService.isDarkMode()) {
+        <i class="bi bi-sun-fill text-warning fs-5"></i>
+      } @else {
+        <i class="bi bi-moon-stars-fill text-primary fs-5"></i>
+      }
+    </button>
+
+    <!-- Notification Bell -->
+    <div class="dropdown">
+      <button 
+        type="button" 
+        class="btn btn-icon btn-light rounded-circle shadow-sm position-relative" 
+        data-bs-toggle="dropdown" 
+        aria-expanded="false">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light p-1">
+          <span class="visually-hidden">notifikasi baru</span>
+        </span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-0 width-dropdown-notifications">
+        <div class="px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+          <h6 class="mb-0 fw-bold fs-7">Notifikasi</h6>
+          <span class="badge bg-primary-subtle text-primary rounded-pill">3 Baru</span>
+        </div>
+        <div class="list-group list-group-flush fs-7">
+          <a class="list-group-item list-group-item-action py-2 px-3 border-0">
+            <div class="fw-semibold text-dark">Permohonan Cuti Baru</div>
+            <div class="text-muted text-xs">Budi Santoso mengajukan cuti 3 hari</div>
+          </a>
+          <a class="list-group-item list-group-item-action py-2 px-3 border-0">
+            <div class="fw-semibold text-dark">Karyawan Baru Terdaftar</div>
+            <div class="text-muted text-xs">Siti Rahma bergabung di divisi IT</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="vr mx-2 text-muted opacity-25 d-none d-sm-block"></div>
+
+    <!-- User Profile Dropdown -->
+    <div class="dropdown">
+      <button 
+        type="button" 
+        class="btn p-1 d-flex align-items-center gap-2 rounded-pill bg-body-tertiary border shadow-sm"
+        data-bs-toggle="dropdown" 
+        aria-expanded="false">
+        <div class="avatar-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center rounded-circle">
+          {{ (currentUser?.username?.charAt(0) || 'A').toUpperCase() }}
+        </div>
+        <div class="text-start d-none d-sm-block pe-2">
+          <div class="fw-semibold lh-1 text-sm text-truncate max-w-120">{{ currentUser?.username || 'User' }}</div>
+          <small class="text-muted text-capitalize lh-1 text-xs">{{ currentUser?.role || 'Admin' }}</small>
+        </div>
+        <i class="bi bi-chevron-down text-muted fs-7 me-1 d-none d-sm-block"></i>
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+        <li class="px-3 py-2 border-bottom mb-1">
+          <div class="fw-bold">{{ currentUser?.full_name || currentUser?.username }}</div>
+          <div class="text-muted text-xs">{{ currentUser?.email || 'admin@perusahaan.com' }}</div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill mt-1">
+            <i class="bi bi-shield-check me-1"></i>{{ currentUser?.role || 'Admin' }}
+          </span>
+        </li>
+        <li>
+          <a class="dropdown-item rounded-2 py-2 text-sm d-flex align-items-center gap-2" href="#">
+            <i class="bi bi-person text-muted"></i> Profil Saya
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item rounded-2 py-2 text-sm d-flex align-items-center gap-2" href="#">
+            <i class="bi bi-gear text-muted"></i> Pengaturan
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <button 
+            type="button" 
+            class="dropdown-item rounded-2 py-2 text-sm text-danger d-flex align-items-center gap-2" 
+            (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i> Keluar / Logout
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>

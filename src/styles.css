@@ -1,0 +1,316 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bs-font-sans-serif: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+}
+
+body {
+  font-family: var(--bs-font-sans-serif);
+  background-color: var(--bs-body-tertiary-bg);
+  color: var(--bs-body-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Custom Utilities */
+.font-display {
+  font-family: var(--bs-font-sans-serif);
+}
+
+.text-xs {
+  font-size: 0.75rem !important;
+}
+
+.text-sm {
+  font-size: 0.875rem !important;
+}
+
+.fs-7 {
+  font-size: 0.825rem !important;
+}
+
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card {
+  transition: all 0.25s ease;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .glass-panel {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES & TABLE ACCESSIBILITY
+   ========================================================================== */
+[data-bs-theme="dark"] .text-dark {
+  color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .text-secondary {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .table {
+  --bs-table-color: var(--bs-body-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--bs-border-color);
+  color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .table th,
+[data-bs-theme="dark"] .table td {
+  color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .table thead th {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .modal-content {
+  background-color: #1e293b !important;
+  color: var(--bs-body-color) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .modal-header,
+[data-bs-theme="dark"] .modal-footer {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .modal-title {
+  color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   PREMIUM BOOTSTRAP 5 NG-SELECT STYLING (GENEROUS PADDING)
+   ========================================================================== */
+.ng-select.custom-ng-select {
+  font-size: 0.875rem;
+}
+
+/* Outer Container */
+.ng-select.custom-ng-select .ng-select-container {
+  min-height: 38px !important;
+  height: 38px !important;
+  background-color: var(--bs-body-tertiary-bg) !important;
+  border: 1px solid var(--bs-border-color) !important;
+  border-radius: 0.5rem !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Pill Version (Filter bars - Generous Padding) */
+.ng-select.custom-ng-select.ng-select-pill .ng-select-container {
+  border-radius: 50rem !important;
+  padding-left: 2px !important;
+  padding-right: 24px !important;
+  border-color: transparent !important;
+}
+
+/* Focus & Open States */
+.ng-select.custom-ng-select.ng-select-focused .ng-select-container,
+.ng-select.custom-ng-select.ng-select-opened .ng-select-container {
+  background-color: var(--bs-body-bg) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15) !important;
+}
+
+/* Value Container */
+.ng-select.custom-ng-select .ng-select-container .ng-value-container {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+/* Placeholder */
+.ng-select.custom-ng-select .ng-select-container .ng-value-container .ng-placeholder {
+  color: #64748b !important;
+  font-size: 0.875rem !important;
+  padding-left: 8px !important;
+}
+
+/* Selected Value Label */
+.ng-select.custom-ng-select .ng-select-container .ng-value-container .ng-value {
+  color: var(--bs-body-color) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding-left: 8px !important;
+}
+
+/* Search Input inside control */
+.ng-select.custom-ng-select .ng-select-container .ng-value-container .ng-input {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.ng-select.custom-ng-select .ng-select-container .ng-value-container .ng-input>input {
+  color: var(--bs-body-color) !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  padding-left: 4px !important;
+}
+
+/* Clear Button & Arrow Indicator */
+.ng-select.custom-ng-select .ng-clear-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  color: #94a3b8 !important;
+  padding-right: 6px !important;
+}
+
+.ng-select.custom-ng-select .ng-clear-wrapper .ng-clear {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 1.1rem !important;
+  transform: translateY(-3px) !important;
+}
+
+.ng-select.custom-ng-select .ng-clear-wrapper:hover .ng-clear {
+  color: #ef4444 !important;
+}
+
+.ng-select.custom-ng-select .ng-arrow-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  padding-right: 6px !important;
+}
+
+.ng-select.custom-ng-select .ng-arrow-wrapper .ng-arrow {
+  border-color: #64748b transparent transparent !important;
+  border-width: 5px 4px 0 !important;
+  margin: 0 !important;
+}
+
+.ng-select.custom-ng-select.ng-select-opened .ng-arrow-wrapper .ng-arrow {
+  border-color: transparent transparent #2563eb !important;
+  border-width: 0 4px 5px !important;
+}
+
+/* Dropdown Popup Menu */
+.ng-dropdown-panel {
+  background-color: var(--bs-body-bg) !important;
+  border: 1px solid var(--bs-border-color) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06) !important;
+  margin-top: 6px !important;
+  z-index: 1070 !important;
+  overflow: hidden !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  padding: 9px 18px !important;
+  font-size: 0.875rem !important;
+  color: var(--bs-body-color) !important;
+  background-color: transparent !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+  font-weight: 500 !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ng-select Bootstrap Validation States */
+.ng-select.custom-ng-select.is-invalid .ng-select-container {
+  border-color: var(--bs-form-invalid-border-color, #dc3545) !important;
+}
+
+.ng-select.custom-ng-select.is-invalid.ng-select-focused .ng-select-container {
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.ng-select.custom-ng-select.is-valid .ng-select-container {
+  border-color: var(--bs-form-valid-border-color, #198754) !important;
+}
+
+.ng-select.custom-ng-select.is-valid.ng-select-focused .ng-select-container {
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important;
+}
+
+/* ==========================================================================
+   NGB-PAGINATION CUSTOM BOOTSTRAP 5 STYLING
+   ========================================================================== */
+.custom-ngb-pagination .pagination {
+  margin-bottom: 0;
+  gap: 4px;
+}
+
+.custom-ngb-pagination .page-item .page-link {
+  border-radius: 50rem !important;
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  font-size: 0.825rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.custom-ngb-pagination .page-item:hover .page-link {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  color: var(--bs-primary);
+  border-color: rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.custom-ngb-pagination .page-item.active .page-link {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(var(--bs-primary-rgb), 0.3) !important;
+  font-weight: 700;
+}
+
+.custom-ngb-pagination .page-item.disabled .page-link {
+  opacity: 0.5;
+  background-color: var(--bs-body-tertiary-bg);
+}

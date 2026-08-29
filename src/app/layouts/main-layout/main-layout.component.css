@@ -1,0 +1,19 @@
+.main-wrapper {
+  margin-left: 260px;
+  min-width: 0;
+  transition: margin-left 0.3s ease;
+}
+
+.main-wrapper.sidebar-collapsed {
+  margin-left: 80px;
+}
+
+@media (max-width: 991.98px) {
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+}
+
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}

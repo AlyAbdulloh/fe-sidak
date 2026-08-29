@@ -1,0 +1,25 @@
+.backdrop-blur {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.page-item-btn {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.page-item-btn:hover {
+  background-color: var(--bs-primary);
+  color: #ffffff;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}

@@ -1,0 +1,288 @@
+<div class="department-page">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Manajemen Departemen</h3>
+      <p class="text-muted text-sm mb-0">Kelola daftar master departemen dan struktur organisasi perusahaan.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button (click)="exportToExcel()" [disabled]="isExporting" class="btn btn-success rounded-pill px-4 text-sm fw-bold shadow-sm">
+        @if (isExporting) {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span> Exporting...
+        } @else {
+        <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel
+        }
+      </button>
+      <button (click)="openCreateModal()" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm">
+        <i class="bi bi-plus-circle-fill me-1"></i> Tambah Departemen
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Notification Alert -->
+  @if (successMessage) {
+  <div
+    class="alert alert-success alert-dismissible fade show text-sm py-2.5 px-3 mb-4 rounded-3 d-flex align-items-center gap-2"
+    role="alert">
+    <i class="bi bi-check-circle-fill fs-5"></i>
+    <div>{{ successMessage }}</div>
+    <button type="button" class="btn-close py-2" (click)="successMessage = null" aria-label="Close"></button>
+  </div>
+  }
+
+  <!-- Error Notification Alert -->
+  @if (errorMessage && !isCreateModalOpen && !isEditModalOpen && !isDeleteModalOpen) {
+  <div
+    class="alert alert-danger alert-dismissible fade show text-sm py-2.5 px-3 mb-4 rounded-3 d-flex align-items-center gap-2"
+    role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+    <div>{{ errorMessage }}</div>
+    <button type="button" class="btn-close py-2" (click)="errorMessage = null" aria-label="Close"></button>
+  </div>
+  }
+
+  <!-- Search Card with Debounce -->
+  <div class="card border-0 rounded-4 shadow-sm mb-4">
+    <div class="card-body p-3 p-md-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6 col-lg-5">
+          <div class="position-relative">
+            <i class="bi bi-search position-absolute start-0 top-50 translate-middle-y ps-3 text-muted"></i>
+            <input type="text" [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"
+              class="form-control ps-5 rounded-pill text-sm bg-body-tertiary border-0"
+              placeholder="Cari nama departemen...">
+          </div>
+        </div>
+        <div class="col-12 col-md-6 text-md-end text-muted text-xs">
+          @if (isLoading) {
+          <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+          <span>Memuat data dari API...</span>
+          } @else if (paginationMeta) {
+          <span>Menampilkan {{ departments.length }} dari {{ paginationMeta.total }} departemen (Halaman {{
+            paginationMeta.page }} dari {{ paginationMeta.totalPages }})</span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Departments Data Table -->
+  <div class="card border-0 rounded-4 shadow-sm mb-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-body-tertiary text-muted text-xs text-uppercase">
+            <tr>
+              <th class="ps-4">ID</th>
+              <th>Nama Departemen</th>
+              <th>Tanggal Dibuat</th>
+              <th>Status</th>
+              <th class="text-end pe-4">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (dept of departments; track dept.id) {
+            <tr>
+              <td class="ps-4 font-monospace text-xs text-muted">#{{ dept.id }}</td>
+              <td>
+                <div class="fw-bold text-sm">{{ dept.deptName }}</div>
+              </td>
+              <td class="text-sm text-secondary">
+                {{ dept.createdAt ? (dept.createdAt | date:'dd MMM yyyy') : '-' }}
+              </td>
+              <td>
+                <span
+                  class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 text-xs">
+                  <i class="bi bi-check-circle-fill me-1"></i> Aktif
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group">
+                  <button (click)="openEditModal(dept)" class="btn btn-sm btn-light border rounded-start-3"
+                    title="Edit Departemen">
+                    <i class="bi bi-pencil-fill text-primary"></i>
+                  </button>
+                  <button (click)="openDeleteModal(dept)" class="btn btn-sm btn-light border rounded-end-3"
+                    title="Hapus Departemen">
+                    <i class="bi bi-trash-fill text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                @if (isLoading) {
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                } @else {
+                <i class="bi bi-diagram-3 display-4 text-muted opacity-50 d-block mb-3"></i>
+                <h5 class="fw-bold text-dark mb-1">Departemen Tidak Ditemukan</h5>
+                <p class="text-muted text-sm mb-0">Coba ubah kata kunci pencarian Anda atau tambahkan departemen baru.
+                </p>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls via NgbPagination -->
+  @if (paginationMeta && paginationMeta.total > 0) {
+  <div class="d-flex justify-content-center mt-4">
+    <ngb-pagination [collectionSize]="paginationMeta.total" [(page)]="page" [pageSize]="limit" [maxSize]="5"
+      [rotate]="true" [ellipses]="true" [boundaryLinks]="true" (pageChange)="onPageChange($event)"
+      class="custom-ngb-pagination">
+    </ngb-pagination>
+  </div>
+  }
+</div>
+
+<!-- ================= CREATE MODAL ================= -->
+@if (isCreateModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <form [formGroup]="departmentForm" (ngSubmit)="submitCreate()" novalidate>
+        <div class="modal-header border-bottom p-4">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="bi bi-plus-circle-fill text-primary me-2"></i> Tambah Departemen Baru
+          </h5>
+          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          @if (errorMessage) {
+          <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+          }
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+              Nama Departemen <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              formControlName="deptName"
+              class="form-control rounded-3 text-sm"
+              [class.is-invalid]="isControlInvalid('deptName')"
+              placeholder="Contoh: Human Resources, Information Technology">
+            
+            @if (isControlInvalid('deptName')) {
+              <div class="invalid-feedback">
+                @if (departmentForm.get('deptName')?.errors?.['required']) {
+                  Nama departemen wajib diisi.
+                } @else if (departmentForm.get('deptName')?.errors?.['minlength']) {
+                  Nama departemen minimal 2 karakter.
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer border-top p-3 px-4">
+          <button type="button" class="btn btn-light rounded-pill px-4 text-sm" (click)="closeCreateModal()">Batal</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menyimpan...
+            } @else {
+            Simpan Departemen
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ================= EDIT MODAL ================= -->
+@if (isEditModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <form [formGroup]="departmentForm" (ngSubmit)="submitEdit()" novalidate>
+        <div class="modal-header border-bottom p-4">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="bi bi-pencil-square text-primary me-2"></i> Edit Departemen
+          </h5>
+          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          @if (errorMessage) {
+          <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+          }
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+              Nama Departemen <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              formControlName="deptName"
+              class="form-control rounded-3 text-sm"
+              [class.is-invalid]="isControlInvalid('deptName')"
+              placeholder="Contoh: Technology & Infrastructure">
+
+            @if (isControlInvalid('deptName')) {
+              <div class="invalid-feedback">
+                @if (departmentForm.get('deptName')?.errors?.['required']) {
+                  Nama departemen wajib diisi.
+                } @else if (departmentForm.get('deptName')?.errors?.['minlength']) {
+                  Nama departemen minimal 2 karakter.
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer border-top p-3 px-4">
+          <button type="button" class="btn btn-light rounded-pill px-4 text-sm" (click)="closeEditModal()">Batal</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Memperbarui...
+            } @else {
+            Update Departemen
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ================= DELETE CONFIRMATION MODAL ================= -->
+@if (isDeleteModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header border-bottom p-4">
+        <h5 class="modal-title fw-bold text-danger">
+          <i class="bi bi-exclamation-octagon-fill me-2"></i> Hapus Departemen
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        @if (errorMessage) {
+        <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+        }
+        <p class="text-sm mb-0">
+          Apakah Anda yakin ingin menghapus departemen <strong>"{{ currentDepartment.deptName }}"</strong>?
+          Tindakan ini tidak dapat dibatalkan.
+        </p>
+      </div>
+      <div class="modal-footer border-top p-3 px-4">
+        <button type="button" class="btn btn-light rounded-pill px-4 text-sm"
+          (click)="closeDeleteModal()">Batal</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 text-sm fw-bold shadow-sm"
+          (click)="submitDelete()" [disabled]="isSubmitting">
+          @if (isSubmitting) {
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menghapus...
+          } @else {
+          Ya, Hapus
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

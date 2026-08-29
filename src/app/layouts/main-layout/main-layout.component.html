@@ -1,0 +1,18 @@
+<div class="app-layout d-flex min-vh-100 bg-body-tertiary">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content Wrapper -->
+  <div [class.sidebar-collapsed]="isSidebarCollapsed" class="main-wrapper flex-grow-1 d-flex flex-column transition-all">
+    <!-- Navbar Header -->
+    <app-navbar></app-navbar>
+
+    <!-- Page Dynamic Router Content -->
+    <main class="main-content flex-grow-1 p-3 p-md-4 p-xl-5">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <app-footer></app-footer>
+  </div>
+</div>

@@ -1,0 +1,575 @@
+<div class="container-fluid py-4 px-3 px-md-4">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="bi bi-people-fill text-primary me-2"></i> Data Karyawan
+      </h3>
+      <p class="text-muted text-sm mb-0">Kelola informasi data karyawan, NIK, kontak, posisi jabatan, dan divisi perusahaan.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button (click)="exportToExcel()" [disabled]="isExporting" class="btn btn-success rounded-pill px-4 text-sm fw-bold shadow-sm">
+        @if (isExporting) {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span> Exporting...
+        } @else {
+        <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel
+        }
+      </button>
+      <button (click)="openCreateModal()" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Tambah Karyawan
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Notification Alert -->
+  @if (successMessage) {
+  <div class="alert alert-success alert-dismissible fade show text-sm py-2.5 px-3 mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-check-circle-fill fs-5"></i>
+    <div>{{ successMessage }}</div>
+    <button type="button" class="btn-close py-2" (click)="successMessage = null" aria-label="Close"></button>
+  </div>
+  }
+
+  <!-- Error Notification Alert -->
+  @if (errorMessage && !isCreateModalOpen && !isEditModalOpen && !isDeleteModalOpen) {
+  <div class="alert alert-danger alert-dismissible fade show text-sm py-2.5 px-3 mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+    <div>{{ errorMessage }}</div>
+    <button type="button" class="btn-close py-2" (click)="errorMessage = null" aria-label="Close"></button>
+  </div>
+  }
+
+  <!-- Filters Row Card -->
+  <div class="card border-0 rounded-4 shadow-sm mb-4">
+    <div class="card-body p-3 p-md-4">
+      <div class="row g-3 align-items-center">
+        <!-- Search Input -->
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="position-relative">
+            <i class="bi bi-search position-absolute start-0 top-50 translate-middle-y ps-3 text-muted"></i>
+            <input type="text" [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"
+              class="form-control ps-5 rounded-pill text-sm bg-body-tertiary border-0"
+              placeholder="Cari NIK, nama, atau email...">
+          </div>
+        </div>
+
+        <!-- Department Filter -->
+        <div class="col-12 col-md-6 col-lg-3">
+          <ng-select [items]="departments" bindLabel="deptName" bindValue="id" [(ngModel)]="selectedDepartmentId"
+            (change)="onFilterChange()" (search)="onDeptSearch($event)" [loading]="isDeptLoading"
+            placeholder="Filter Departemen..." class="custom-ng-select ng-select-pill text-sm">
+          </ng-select>
+        </div>
+
+        <!-- Job Title Filter -->
+        <div class="col-12 col-md-6 col-lg-3">
+          <ng-select [items]="jobTitles" bindLabel="titleName" bindValue="id" [(ngModel)]="selectedJobTitleId"
+            (change)="onFilterChange()" (search)="onJobTitleSearch($event)" [loading]="isJobTitleLoading"
+            placeholder="Filter Jabatan..." class="custom-ng-select ng-select-pill text-sm">
+          </ng-select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-12 col-md-6 col-lg-3">
+          <select [(ngModel)]="selectedStatusFilter" (change)="onFilterChange()"
+            class="form-select rounded-pill text-sm bg-body-tertiary border-0 px-3">
+            <option value="all">Semua Status</option>
+            <option value="active">Aktif</option>
+            <option value="inactive">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employees Table -->
+  <div class="card border-0 rounded-4 shadow-sm mb-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-body-tertiary text-muted text-xs text-uppercase">
+            <tr>
+              <th class="ps-4">NIK / Kode</th>
+              <th>Nama & Email</th>
+              <th>Gender</th>
+              <th>No. Telepon</th>
+              <th>Jabatan & Divisi</th>
+              <th>Tgl Masuk</th>
+              <th>Status</th>
+              <th class="text-end pe-4">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of employees; track emp.id) {
+            <tr>
+              <td class="ps-4">
+                <span class="badge bg-body-tertiary text-body border font-monospace px-2.5 py-1 text-xs">
+                  {{ emp.employeeCode || '-' }}
+                </span>
+              </td>
+              <td>
+                <div class="fw-bold text-sm">{{ emp.name }}</div>
+                <div class="text-muted text-xs">{{ emp.email || '-' }}</div>
+              </td>
+              <td>
+                @if (emp.gender === 'female') {
+                <span class="badge bg-pink-subtle text-pink border border-pink-subtle rounded-pill px-2.5 py-1 text-xs">
+                  <i class="bi bi-gender-female me-1"></i> Perempuan
+                </span>
+                } @else {
+                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-1 text-xs">
+                  <i class="bi bi-gender-male me-1"></i> Laki-laki
+                </span>
+                }
+              </td>
+              <td class="text-sm text-secondary">
+                {{ emp.phoneNumber || '-' }}
+              </td>
+              <td>
+                <div class="fw-semibold text-sm">{{ emp.jobTitle?.titleName || '-' }}</div>
+                <div class="text-muted text-xs">
+                  <i class="bi bi-building me-1"></i> {{ emp.jobTitle?.department?.deptName || '-' }}
+                </div>
+              </td>
+              <td class="text-sm text-secondary">
+                {{ emp.hireDate ? (emp.hireDate | date:'dd MMM yyyy') : '-' }}
+              </td>
+              <td>
+                @if (emp.status === 'active') {
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 text-xs">
+                  <i class="bi bi-check-circle-fill me-1"></i> Aktif
+                </span>
+                } @else {
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1 text-xs">
+                  <i class="bi bi-dash-circle-fill me-1"></i> Nonaktif
+                </span>
+                }
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group">
+                  <button (click)="openEditModal(emp)" class="btn btn-sm btn-light border rounded-start-3" title="Edit Karyawan">
+                    <i class="bi bi-pencil-fill text-primary"></i>
+                  </button>
+                  <button (click)="openDeleteModal(emp)" class="btn btn-sm btn-light border rounded-end-3" title="Hapus Karyawan">
+                    <i class="bi bi-trash-fill text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                @if (isLoading) {
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                } @else {
+                <i class="bi bi-people display-4 text-muted opacity-50 d-block mb-3"></i>
+                <h5 class="fw-bold mb-1">Karyawan Tidak Ditemukan</h5>
+                <p class="text-muted text-sm mb-0">Coba atur ulang kata kunci pencarian atau filter Anda.</p>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls via NgbPagination -->
+  @if (paginationMeta && paginationMeta.total > 0) {
+  <div class="d-flex justify-content-center mt-4">
+    <ngb-pagination [collectionSize]="paginationMeta.total" [(page)]="page" [pageSize]="limit" [maxSize]="5"
+      [rotate]="true" [ellipses]="true" [boundaryLinks]="true" (pageChange)="onPageChange($event)"
+      class="custom-ngb-pagination">
+    </ngb-pagination>
+  </div>
+  }
+</div>
+
+<!-- ================= CREATE MODAL ================= -->
+@if (isCreateModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <form [formGroup]="employeeForm" (ngSubmit)="submitCreate()" novalidate>
+        <div class="modal-header border-bottom p-4">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-person-plus-fill text-primary me-2"></i> Tambah Karyawan Baru
+          </h5>
+          <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          @if (errorMessage) {
+          <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+          }
+          <div class="row g-3">
+            <!-- Nama Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Nama Lengkap <span class="text-danger">*</span>
+              </label>
+              <input type="text" formControlName="name" class="form-control rounded-3 text-sm"
+                [class.is-invalid]="isControlInvalid('name')" placeholder="Contoh: Budi Santoso">
+
+              @if (isControlInvalid('name')) {
+              <div class="invalid-feedback">
+                @if (employeeForm.get('name')?.errors?.['required']) {
+                Nama lengkap wajib diisi.
+                } @else if (employeeForm.get('name')?.errors?.['minlength']) {
+                Nama minimal 2 karakter.
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Jabatan (NgSelect) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Jabatan <span class="text-danger">*</span>
+              </label>
+              <ng-select [items]="jobTitles" bindLabel="titleName" bindValue="id" formControlName="jobTitleId"
+                (search)="onJobTitleSearch($event)" [loading]="isJobTitleLoading" placeholder="Pilih Jabatan..."
+                class="custom-ng-select text-sm" [class.is-invalid]="isControlInvalid('jobTitleId')">
+              </ng-select>
+
+              @if (isControlInvalid('jobTitleId')) {
+              <div class="invalid-feedback d-block">
+                Pilih jabatan terlebih dahulu.
+              </div>
+              }
+            </div>
+
+            <!-- Departemen (DISABLED & AUTO-FILLED) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Departemen <span class="badge bg-light text-muted border ms-1 font-monospace">OTOMATIS</span>
+              </label>
+              <input type="text" formControlName="departmentName" class="form-control rounded-3 text-sm bg-body-tertiary"
+                placeholder="Otomatis terisi berdasarkan Jabatan">
+            </div>
+
+            <!-- Jenis Kelamin -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Jenis Kelamin <span class="text-danger">*</span>
+              </label>
+              <div class="d-flex gap-4 pt-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="gender" id="createGenderMale" value="male">
+                  <label class="form-check-label text-sm fw-medium" for="createGenderMale">
+                    <i class="bi bi-gender-male text-info me-1"></i> Laki-laki
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="gender" id="createGenderFemale" value="female">
+                  <label class="form-check-label text-sm fw-medium" for="createGenderFemale">
+                    <i class="bi bi-gender-female text-danger me-1"></i> Perempuan
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Email Perusahaan
+              </label>
+              <input type="email" formControlName="email" class="form-control rounded-3 text-sm"
+                [class.is-invalid]="isControlInvalid('email')" placeholder="Contoh: budi.santoso@company.com">
+
+              @if (isControlInvalid('email')) {
+              <div class="invalid-feedback">
+                Format email tidak valid.
+              </div>
+              }
+            </div>
+
+            <!-- Nomor Telepon / WA -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                No. Telepon / WhatsApp
+              </label>
+              <input type="text" formControlName="phoneNumber" class="form-control rounded-3 text-sm"
+                placeholder="Contoh: 081234567890">
+            </div>
+
+            <!-- Tanggal Lahir -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Tanggal Lahir
+              </label>
+              <input type="date" formControlName="birthDate" class="form-control rounded-3 text-sm">
+            </div>
+
+            <!-- Tanggal Masuk (Join Date) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Tanggal Masuk (Join Date)
+              </label>
+              <input type="date" formControlName="hireDate" class="form-control rounded-3 text-sm">
+            </div>
+
+            <!-- Status Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Status Karyawan <span class="text-danger">*</span>
+              </label>
+              <div class="d-flex gap-4 pt-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="status" id="createStatusActive" value="active">
+                  <label class="form-check-label text-sm fw-medium" for="createStatusActive">
+                    <span class="badge bg-success-subtle text-success me-1">Aktif</span> Aktif Bekerja
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="status" id="createStatusInactive" value="inactive">
+                  <label class="form-check-label text-sm fw-medium" for="createStatusInactive">
+                    <span class="badge bg-secondary-subtle text-secondary me-1">Nonaktif</span> Tidak Aktif
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alamat Tempat Tinggal -->
+            <div class="col-12">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Alamat Tempat Tinggal
+              </label>
+              <input type="text" formControlName="address" class="form-control rounded-3 text-sm"
+                placeholder="Contoh: Jl. Sudirman No. 123, Kel. Kebayoran Baru, Jakarta Selatan">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top p-3 px-4">
+          <button type="button" class="btn btn-light rounded-pill px-4 text-sm" (click)="closeCreateModal()">Batal</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menyimpan...
+            } @else {
+            Simpan Karyawan
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ================= EDIT MODAL ================= -->
+@if (isEditModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <form [formGroup]="employeeForm" (ngSubmit)="submitEdit()" novalidate>
+        <div class="modal-header border-bottom p-4">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-pencil-square text-primary me-2"></i> Edit Data Karyawan
+          </h5>
+          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          @if (errorMessage) {
+          <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+          }
+          <div class="row g-3">
+            <!-- NIK / Kode Karyawan (READ-ONLY) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                NIK / Kode Karyawan <span class="badge bg-light text-muted border ms-1 font-monospace">OTOMATIS</span>
+              </label>
+              <input type="text" formControlName="employeeCode" class="form-control rounded-3 text-sm bg-body-tertiary" readonly>
+            </div>
+
+            <!-- Nama Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Nama Lengkap <span class="text-danger">*</span>
+              </label>
+              <input type="text" formControlName="name" class="form-control rounded-3 text-sm"
+                [class.is-invalid]="isControlInvalid('name')" placeholder="Contoh: Budi Santoso">
+
+              @if (isControlInvalid('name')) {
+              <div class="invalid-feedback">
+                @if (employeeForm.get('name')?.errors?.['required']) {
+                Nama lengkap wajib diisi.
+                } @else if (employeeForm.get('name')?.errors?.['minlength']) {
+                Nama minimal 2 karakter.
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Jabatan (NgSelect) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Jabatan <span class="text-danger">*</span>
+              </label>
+              <ng-select [items]="jobTitles" bindLabel="titleName" bindValue="id" formControlName="jobTitleId"
+                (search)="onJobTitleSearch($event)" [loading]="isJobTitleLoading" placeholder="Pilih Jabatan..."
+                class="custom-ng-select text-sm" [class.is-invalid]="isControlInvalid('jobTitleId')">
+              </ng-select>
+
+              @if (isControlInvalid('jobTitleId')) {
+              <div class="invalid-feedback d-block">
+                Pilih jabatan terlebih dahulu.
+              </div>
+              }
+            </div>
+
+            <!-- Departemen (DISABLED & AUTO-FILLED) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Departemen <span class="badge bg-light text-muted border ms-1 font-monospace">OTOMATIS</span>
+              </label>
+              <input type="text" formControlName="departmentName" class="form-control rounded-3 text-sm bg-body-tertiary"
+                placeholder="Otomatis terisi berdasarkan Jabatan">
+            </div>
+
+            <!-- Jenis Kelamin -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Jenis Kelamin <span class="text-danger">*</span>
+              </label>
+              <div class="d-flex gap-4 pt-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="gender" id="editGenderMale" value="male">
+                  <label class="form-check-label text-sm fw-medium" for="editGenderMale">
+                    <i class="bi bi-gender-male text-info me-1"></i> Laki-laki
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="gender" id="editGenderFemale" value="female">
+                  <label class="form-check-label text-sm fw-medium" for="editGenderFemale">
+                    <i class="bi bi-gender-female text-danger me-1"></i> Perempuan
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Email Perusahaan
+              </label>
+              <input type="email" formControlName="email" class="form-control rounded-3 text-sm"
+                [class.is-invalid]="isControlInvalid('email')" placeholder="Contoh: budi.santoso@company.com">
+
+              @if (isControlInvalid('email')) {
+              <div class="invalid-feedback">
+                Format email tidak valid.
+              </div>
+              }
+            </div>
+
+            <!-- Nomor Telepon / WA -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                No. Telepon / WhatsApp
+              </label>
+              <input type="text" formControlName="phoneNumber" class="form-control rounded-3 text-sm"
+                placeholder="Contoh: 081234567890">
+            </div>
+
+            <!-- Tanggal Lahir -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Tanggal Lahir
+              </label>
+              <input type="date" formControlName="birthDate" class="form-control rounded-3 text-sm">
+            </div>
+
+            <!-- Tanggal Masuk (Join Date) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Tanggal Masuk (Join Date)
+              </label>
+              <input type="date" formControlName="hireDate" class="form-control rounded-3 text-sm">
+            </div>
+
+            <!-- Status Karyawan -->
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Status Karyawan <span class="text-danger">*</span>
+              </label>
+              <div class="d-flex gap-4 pt-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="status" id="editStatusActive" value="active">
+                  <label class="form-check-label text-sm fw-medium" for="editStatusActive">
+                    <span class="badge bg-success-subtle text-success me-1">Aktif</span> Aktif Bekerja
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="status" id="editStatusInactive" value="inactive">
+                  <label class="form-check-label text-sm fw-medium" for="editStatusInactive">
+                    <span class="badge bg-secondary-subtle text-secondary me-1">Nonaktif</span> Tidak Aktif
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alamat Tempat Tinggal -->
+            <div class="col-12">
+              <label class="form-label fw-semibold text-xs text-uppercase text-secondary">
+                Alamat Tempat Tinggal
+              </label>
+              <input type="text" formControlName="address" class="form-control rounded-3 text-sm"
+                placeholder="Contoh: Jl. Sudirman No. 123, Kel. Kebayoran Baru, Jakarta Selatan">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top p-3 px-4">
+          <button type="button" class="btn btn-light rounded-pill px-4 text-sm" (click)="closeEditModal()">Batal</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 text-sm fw-bold shadow-sm" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Memperbarui...
+            } @else {
+            Update Karyawan
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ================= DELETE CONFIRMATION MODAL ================= -->
+@if (isDeleteModalOpen) {
+<div class="modal fade show d-block backdrop-blur" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header border-bottom p-4">
+        <h5 class="modal-title fw-bold text-danger">
+          <i class="bi bi-exclamation-octagon-fill me-2"></i> Hapus Data Karyawan
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        @if (errorMessage) {
+        <div class="alert alert-danger text-sm py-2 px-3 mb-3 rounded-3">{{ errorMessage }}</div>
+        }
+        <p class="text-sm mb-0">
+          Apakah Anda yakin ingin menghapus karyawan <strong>"{{ currentEmployeeName }}"</strong>?
+          Tindakan ini akan melakukan soft-delete data karyawan dari sistem.
+        </p>
+      </div>
+      <div class="modal-footer border-top p-3 px-4">
+        <button type="button" class="btn btn-light rounded-pill px-4 text-sm" (click)="closeDeleteModal()">Batal</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 text-sm fw-bold shadow-sm" (click)="submitDelete()"
+          [disabled]="isSubmitting">
+          @if (isSubmitting) {
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menghapus...
+          } @else {
+          Ya, Hapus
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
