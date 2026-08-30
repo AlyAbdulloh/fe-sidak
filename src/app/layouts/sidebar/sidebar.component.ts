@@ -56,12 +56,6 @@ export class SidebarComponent {
       items: [
         { label: 'Riwayat Audit Log', icon: 'bi-clock-history', route: '/audit-logs' }
       ]
-    },
-    {
-      title: 'PENGATURAN',
-      items: [
-        { label: 'Pengaturan Sistem', icon: 'bi-gear-wide-connected', route: '/settings' }
-      ]
     }
   ];
 
